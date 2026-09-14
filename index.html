@@ -1,0 +1,2628 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Os Mais Que Vencedores — Jogo Bíblico Jovem Cristo Vive</title>
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css">
+  <style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Complements basecoat; artifacts override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: #0a8f3c; }
+.kpi .kpi-delta.down { color: #cf3131; }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+</style>
+  
+
+  <style>
+    :root {
+      --navy-deep: #0f1c44;
+      --navy-main: #1b2f77;
+      --navy-light: #2844a4;
+      --gold-deep: #b88b1d;
+      --gold-main: #d4af37;
+      --gold-light: #fbeea4;
+      --gold-bg: #fffbf0;
+      --accent: #1b2f77;
+      --accent-text: #132257;
+      --accent-contrast: #ffffff;
+      --surface: #ffffff;
+      --surface-subtle: #f4f6fc;
+      --text-main: #141b2d;
+      --text-muted: #4e5973;
+      --border-color: #d8e0f0;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f7f9fd;
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Brand & Crest */
+    .brand-header {
+      background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy-main) 60%, #152563 100%);
+      color: #ffffff;
+      border-bottom: 4px solid var(--gold-main);
+      padding: 1.25rem 1rem;
+      box-shadow: 0 4px 16px rgba(15, 28, 68, 0.15);
+    }
+
+    .brand-wrap {
+      max-width: 1024px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* CSS Crest / Shield */
+    .crest-shield {
+      width: 64px;
+      height: 76px;
+      position: relative;
+      background: linear-gradient(180deg, #182b6b 0%, #0d173b 100%);
+      border: 3px solid var(--gold-main);
+      border-radius: 6px 6px 32px 32px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35), inset 0 0 10px rgba(212,175,55,0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      flex-shrink: 0;
+    }
+
+    .crest-shield::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ffeb99;
+    }
+
+    .crest-cross {
+      width: 6px;
+      height: 26px;
+      background: var(--gold-main);
+      position: absolute;
+      top: 10px;
+      z-index: 3;
+      border-radius: 1px;
+      box-shadow: 0 0 4px rgba(255, 235, 153, 0.6);
+    }
+    .crest-cross::after {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: -7px;
+      width: 20px;
+      height: 6px;
+      background: var(--gold-main);
+      border-radius: 1px;
+    }
+
+    /* Mountains silhouette in shield */
+    .crest-mountains {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      z-index: 2;
+    }
+    .mountain-1 {
+      position: absolute;
+      bottom: 0;
+      left: -8px;
+      width: 0;
+      height: 0;
+      border-left: 28px solid transparent;
+      border-right: 28px solid transparent;
+      border-bottom: 30px solid #2844a4;
+    }
+    .mountain-2 {
+      position: absolute;
+      bottom: 0;
+      right: -10px;
+      width: 0;
+      height: 0;
+      border-left: 32px solid transparent;
+      border-right: 32px solid transparent;
+      border-bottom: 36px solid #1c327c;
+      opacity: 0.95;
+    }
+    .mountain-snow {
+      position: absolute;
+      top: -30px;
+      left: -7px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 9px solid #f6f8ff;
+    }
+
+    .brand-text h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin: 0;
+      line-height: 1.15;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+    .brand-text h1 span {
+      color: var(--gold-main);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #d1dcff;
+      margin: 2px 0 0 0;
+      font-weight: 600;
+    }
+    .brand-verse {
+      font-size: 0.8rem;
+      color: #fceea7;
+      font-style: italic;
+      margin: 4px 0 0 0;
+    }
+
+    /* Cumulative score bar */
+    .brand-score-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      backdrop-filter: blur(4px);
+    }
+    .score-badge-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .score-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .score-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #d0dcff;
+      font-weight: 600;
+    }
+    .score-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+    .sound-toggle-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 0.35rem 0.55rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sound-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Container */
+    .app-main {
+      flex: 1;
+      max-width: 980px;
+      margin: 1.5rem auto;
+      width: 100%;
+      padding: 0 1rem 2rem 1rem;
+      box-sizing: border-box;
+    }
+
+    /* Navigation Bar inside games */
+    .game-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      background: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 6px rgba(20, 38, 94, 0.05);
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--navy-main);
+      color: #ffffff;
+      border: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .nav-btn:hover {
+      background: var(--navy-light);
+      transform: translateY(-1px);
+    }
+    .game-title-bar {
+      font-weight: 700;
+      color: var(--navy-main);
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Cards Grid (Home Menu) */
+    .menu-hero {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem 1rem 1.2rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f2f5fd 100%);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 14px rgba(27, 47, 119, 0.06);
+    }
+    .hero-pill {
+      display: inline-block;
+      background: var(--gold-light);
+      color: var(--gold-deep);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      border: 1px solid #ebd376;
+    }
+    .menu-hero h2 {
+      font-size: 1.6rem;
+      color: var(--navy-main);
+      margin: 0 0 0.5rem 0;
+      font-weight: 800;
+    }
+    .menu-hero p {
+      color: var(--text-muted);
+      margin: 0 auto;
+      max-width: 650px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .game-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--navy-main), var(--gold-main));
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(20, 38, 94, 0.12);
+      border-color: var(--gold-main);
+    }
+    .game-card:hover::before {
+      opacity: 1;
+    }
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: var(--surface-subtle);
+      border: 1.5px solid #d4def7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--navy-main);
+      margin: 0;
+    }
+    .card-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--gold-deep);
+      background: var(--gold-light);
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 0.2rem;
+    }
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      margin: 0 0 1.25rem 0;
+    }
+    .card-action {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.85rem;
+    }
+    .play-link {
+      font-weight: 700;
+      color: var(--navy-main);
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .game-card:hover .play-link {
+      color: var(--gold-deep);
+    }
+
+    /* Level Selector Screen */
+    .level-select-wrap {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 6px 20px rgba(27, 47, 119, 0.08);
+    }
+    .level-select-wrap h3 {
+      font-size: 1.4rem;
+      color: var(--navy-main);
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-weight: 800;
+    }
+    .level-select-wrap p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.75rem;
+    }
+    .diff-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 540px) {
+      .diff-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+    .diff-btn {
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: #ffffff;
+      padding: 1.1rem 0.75rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .diff-btn:hover {
+      border-color: var(--navy-main);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(20, 38, 94, 0.1);
+    }
+    .diff-title {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--navy-main);
+    }
+    .diff-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: #eef2fb;
+      color: var(--navy-light);
+    }
+    .diff-btn.diff-easy { border-color: #8ed9aa; }
+    .diff-btn.diff-easy .diff-tag { background: #e8f8ee; color: #1e7e43; }
+    .diff-btn.diff-medium { border-color: #f7cb78; }
+    .diff-btn.diff-medium .diff-tag { background: #fff8e6; color: #a46d07; }
+    .diff-btn.diff-hard { border-color: #f59e9e; }
+    .diff-btn.diff-hard .diff-tag { background: #feeeee; color: #c02828; }
+
+    /* Game Container shared */
+    .game-board {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      box-shadow: 0 6px 18px rgba(20, 38, 94, 0.06);
+    }
+
+    /* 1. QUIZ STYLES */
+    .quiz-progress {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+    .progress-bar-track {
+      width: 100%;
+      height: 8px;
+      background: #e6ecf8;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy-main), var(--gold-main));
+      width: 20%;
+      transition: width 0.3s ease;
+    }
+    .quiz-question {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .quiz-opt-btn {
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.1rem;
+      font-size: 0.98rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .quiz-opt-btn:hover:not(:disabled) {
+      border-color: var(--navy-main);
+      background-color: #f7f9fe;
+      transform: translateX(3px);
+    }
+    .quiz-opt-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #edf1fa;
+      color: var(--navy-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .quiz-opt-btn.correct {
+      background-color: #eaf8ee !important;
+      border-color: #2e9b52 !important;
+      color: #1a6d36 !important;
+    }
+    .quiz-opt-btn.correct .quiz-opt-letter {
+      background: #2e9b52;
+      color: #ffffff;
+    }
+    .quiz-opt-btn.wrong {
+      background-color: #fdeeee !important;
+      border-color: #d93838 !important;
+      color: #9f1c1c !important;
+    }
+    .quiz-opt-btn.wrong .quiz-opt-letter {
+      background: #d93838;
+      color: #ffffff;
+    }
+    .quiz-feedback {
+      background: #f4f7fd;
+      border-left: 4px solid var(--navy-main);
+      border-radius: 0 8px 8px 0;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    .quiz-feedback.is-correct {
+      border-left-color: #2e9b52;
+      background: #f0fbf3;
+    }
+    .quiz-feedback.is-wrong {
+      border-left-color: #d93838;
+      background: #fdf2f2;
+    }
+
+    /* 2. CAÇA-PALAVRAS STYLES */
+    .wordsearch-layout {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .wordsearch-grid-box {
+      flex: 1 1 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+    .wordsearch-words-box {
+      flex: 0 0 240px;
+      background: #f8faff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+    .ws-grid {
+      display: grid;
+      gap: 3px;
+      background: #ccd7ee;
+      padding: 6px;
+      border-radius: 10px;
+      touch-action: none;
+    }
+    .ws-cell {
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy-main);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    @media (max-width: 480px) {
+      .ws-cell {
+        width: 25px;
+        height: 25px;
+        font-size: 0.8rem;
+      }
+    }
+    .ws-cell.selected {
+      background: #ffeb99;
+      color: #111;
+      transform: scale(0.95);
+    }
+    .ws-cell.found {
+      background: var(--gold-main);
+      color: #0f1c44;
+      font-weight: 800;
+    }
+    .word-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+    .word-item {
+      padding: 0.35rem 0.6rem;
+      background: #ffffff;
+      border: 1px solid #dce4f5;
+      border-radius: 6px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--navy-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .word-item.found {
+      text-decoration: line-through;
+      background: #eef8f0;
+      color: #2b7a4b;
+      border-color: #b7e3c5;
+    }
+
+    /* 3. JOGO DA MEMÓRIA STYLES */
+    .memory-stats {
+      display: flex;
+      justify-content: space-around;
+      background: #f5f8ff;
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #dce4f5;
+    }
+    .memory-stat-item {
+      text-align: center;
+    }
+    .stat-lbl {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .stat-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--navy-main);
+    }
+    .memory-grid {
+      display: grid;
+      gap: 0.75rem;
+      perspective: 1000px;
+    }
+    .mem-grid-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width: 520px) {
+      .mem-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    .memory-card {
+      aspect-ratio: 1 / 1;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.4s ease;
+      cursor: pointer;
+      border-radius: 10px;
+      min-height: 85px;
+    }
+    .memory-card.flipped {
+      transform: rotateY(180deg);
+    }
+    .memory-card.matched {
+      transform: rotateY(180deg);
+      opacity: 0.9;
+    }
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .card-back {
+      background: linear-gradient(135deg, var(--navy-main), #112053);
+      border: 2px solid var(--gold-main);
+      color: #ffffff;
+      font-size: 1.8rem;
+    }
+    .card-front {
+      background: #ffffff;
+      border: 2px solid var(--gold-main);
+      transform: rotateY(180deg);
+      color: var(--navy-deep);
+    }
+    .matched .card-front {
+      background: #fffdf0;
+      border-color: #2e9b52;
+    }
+
+    /* 4. FORCA STYLES */
+    .hangman-top {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .hangman-svg-wrap {
+      width: 170px;
+      height: 180px;
+      background: #f8faff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px;
+    }
+    .hangman-hint-card {
+      flex: 1 1 260px;
+      background: #fffdf2;
+      border: 1px solid #fae59a;
+      border-radius: 12px;
+      padding: 1.1rem;
+    }
+    .hint-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--gold-deep);
+      margin-bottom: 0.35rem;
+    }
+    .hint-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy-deep);
+      line-height: 1.4;
+      margin: 0;
+    }
+    .hangman-word-display {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+    .letter-slot {
+      width: 38px;
+      height: 48px;
+      border-bottom: 3px solid var(--navy-main);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--navy-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+    .keyboard-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .key-btn {
+      width: 38px;
+      height: 42px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-color);
+      background: #ffffff;
+      color: var(--navy-main);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .key-btn:hover:not(:disabled) {
+      background: var(--navy-main);
+      color: #ffffff;
+      border-color: var(--navy-main);
+    }
+    .key-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: #e5e9f0;
+    }
+    .key-btn.hit {
+      background: #2e9b52;
+      color: #fff;
+      border-color: #2e9b52;
+      opacity: 1;
+    }
+    .key-btn.miss {
+      background: #e5e9f0;
+      color: #999;
+      opacity: 0.45;
+    }
+
+    /* 5. CHARADAS STYLES */
+    .riddle-card {
+      background: #fdfefe;
+      border: 2px dashed #b9cbe9;
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .riddle-icon {
+      font-size: 2.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .riddle-question {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+      line-height: 1.45;
+      max-width: 620px;
+      margin: 0 auto 1.25rem;
+    }
+    .riddle-answer-box {
+      background: #fffdec;
+      border: 2px solid var(--gold-main);
+      border-radius: 10px;
+      padding: 1.1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      animation: fadeIn 0.3s ease;
+    }
+    .riddle-ans-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--gold-deep);
+      margin-bottom: 0.35rem;
+    }
+    .riddle-ans-expl {
+      font-size: 0.95rem;
+      color: var(--navy-deep);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* Modal Victory */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 28, 68, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 18px;
+      max-width: 480px;
+      width: 100%;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      border: 3px solid var(--gold-main);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-trophy {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--navy-main);
+      margin: 0 0 0.5rem;
+    }
+    .modal-score {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--gold-deep);
+      margin-bottom: 0.75rem;
+    }
+    .modal-body-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn-action {
+      background: linear-gradient(135deg, var(--gold-main), #b88b1d);
+      color: #0f1c44;
+      font-weight: 800;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+    }
+    .btn-secondary {
+      background: #e7ecf8;
+      color: var(--navy-main);
+      font-weight: 700;
+      border: none;
+      padding: 0.75rem 1.3rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover {
+      background: #d8e2f6;
+    }
+
+    /* Footer */
+    .brand-footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      margin-top: auto;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-gold {
+      color: var(--gold-deep);
+      font-weight: 700;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Utility */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+
+  <!-- Brand Header with Mountain & Cross Crest -->
+  <header class="brand-header">
+    <div class="brand-wrap">
+      <div class="brand-identity">
+        <!-- Pure CSS Crest / Escudo Cristo Vive -->
+        <div class="crest-shield" aria-label="Escudo Cristo Vive Paracambi" title="Cristo Vive Paracambi">
+          <div class="crest-cross"></div>
+          <div class="crest-mountains">
+            <div class="mountain-1"><div class="mountain-snow"></div></div>
+            <div class="mountain-2"></div>
+          </div>
+        </div>
+
+        <div class="brand-text">
+          <div class="brand-subtitle">Igreja Evangélica Cristo Vive — Paracambi</div>
+          <h1>OS MAIS QUE <span>VENCEDORES</span></h1>
+          <div class="brand-verse">“Mas em todas estas coisas somos mais que vencedores, por meio daquele que nos amou.” Rm 8:37</div>
+        </div>
+      </div>
+
+      <!-- Cumulative Score Bar -->
+      <div class="brand-score-card">
+        <span class="score-badge-icon">⭐</span>
+        <div class="score-info">
+          <span class="score-label">Pontuação Geral</span>
+          <span class="score-val" id="global-score-display">0 pts</span>
+        </div>
+        <button id="sound-toggle-btn" class="sound-toggle-btn" title="Alternar Efeitos Sonoros" aria-label="Alternar som">
+          🔊 Som: ON
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Content Area -->
+  <main class="app-main" id="main-content">
+
+    <!-- Screen 0: Menu / Dashboard -->
+    <section id="screen-menu">
+      <div class="menu-hero">
+        <span class="hero-pill">Campeonato Bíblico Jovem</span>
+        <h2>Desafie o seu conhecimento e fé!</h2>
+        <p>Escolha um dos 5 jogos temáticos bíblicos abaixo, acumule pontos e vença todas as etapas. Níveis mais difíceis multiplicam sua pontuação (Fácil 1x, Médio 2x, Difícil 3x)!</p>
+      </div>
+
+      <div class="games-grid">
+        <!-- Card 1: Quiz -->
+        <div class="game-card" onclick="app.startLevelSelect('quiz')">
+          <div>
+            <div class="card-top">
+              <div class="card-icon">📖</div>
+              <div>
+                <h3 class="card-title">Quiz Bíblico</h3>
+                <span class="card-badge">Múltipla Escolha</span>
+              </div>
+            </div>
+            <p class="card-desc">Perguntas com 4 alternativas e explicação teológica imediata sobre cartas, personagens e ensinamentos.</p>
+          </div>
+          <div class="card-action">
+            <span class="play-link">Jogar agora ➔</span>
+            <small class="muted" id="quiz-status-badge">3 níveis</small>
+          </div>
+        </div>
+
+        <!-- Card 2: Caça-Palavras -->
+        <div class="game-card" onclick="app.startLevelSelect('wordsearch')">
+          <div>
+            <div class="card-top">
+              <div class="card-icon">🔍</div>
+              <div>
+                <h3 class="card-title">Caça-Palavras</h3>
+                <span class="card-badge">Grade Interativa</span>
+              </div>
+            </div>
+            <p class="card-desc">Encontre termos sagrados na grade clicando na letra inicial e final para completar o desafio.</p>
+          </div>
+          <div class="card-action">
+            <span class="play-link">Jogar agora ➔</span>
+            <small class="muted">8x8 a 12x12</small>
+          </div>
+        </div>
+
+        <!-- Card 3: Jogo da Memória -->
+        <div class="game-card" onclick="app.startLevelSelect('memory')">
+          <div>
+            <div class="card-top">
+              <div class="card-icon">🧠</div>
+              <div>
+                <h3 class="card-title">Jogo da Memória</h3>
+                <span class="card-badge">Cartões Bíblicos</span>
+              </div>
+            </div>
+            <p class="card-desc">Combine pares de heróis da fé e versículos de vitória (Rm 8:37, Fp 4:13 e outros) no menor tempo.</p>
+          </div>
+          <div class="card-action">
+            <span class="play-link">Jogar agora ➔</span>
+            <small class="muted">4 a 8 pares</small>
+          </div>
+        </div>
+
+        <!-- Card 4: Forca Bíblica -->
+        <div class="game-card" onclick="app.startLevelSelect('hangman')">
+          <div>
+            <div class="card-top">
+              <div class="card-icon">⚔️</div>
+              <div>
+                <h3 class="card-title">Forca Bíblica</h3>
+                <span class="card-badge">Adivinhação</span>
+              </div>
+            </div>
+            <p class="card-desc">Descubra as palavras bíblicas antes de completar os 6 erros com a ajuda de ricas dicas das Escrituras.</p>
+          </div>
+          <div class="card-action">
+            <span class="play-link">Jogar agora ➔</span>
+            <small class="muted">6 chances</small>
+          </div>
+        </div>
+
+        <!-- Card 5: Charadas Bíblicas -->
+        <div class="game-card" onclick="app.startLevelSelect('riddles')">
+          <div>
+            <div class="card-top">
+              <div class="card-icon">💡</div>
+              <div>
+                <h3 class="card-title">Charadas Bíblicas</h3>
+                <span class="card-badge">Quem Sou Eu?</span>
+              </div>
+            </div>
+            <p class="card-desc">Enigmas intrigantes de heróis da fé, apóstolos e histórias do Evangelho com revelação comentada.</p>
+          </div>
+          <div class="card-action">
+            <span class="play-link">Jogar agora ➔</span>
+            <small class="muted">Enigmas reveláveis</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen: Difficulty Selector Screen -->
+    <section id="screen-level" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.showScreen('screen-menu')">⬅ Voltar ao Menu</button>
+        <span class="game-title-bar" id="level-game-name">Escolha a Dificuldade</span>
+        <span></span>
+      </div>
+
+      <div class="level-select-wrap">
+        <h3 id="level-select-title">Selecione seu Nível</h3>
+        <p>Quanto maior a dificuldade, maior o bônus de pontuação multiplicadora conquistado!</p>
+
+        <div class="diff-buttons">
+          <button class="diff-btn diff-easy" onclick="app.launchGameWithLevel('easy')">
+            <span style="font-size: 1.5rem">🌱</span>
+            <span class="diff-title">Fácil</span>
+            <span class="diff-tag">Multiplicador 1x</span>
+          </button>
+          <button class="diff-btn diff-medium" onclick="app.launchGameWithLevel('medium')">
+            <span style="font-size: 1.5rem">⚡</span>
+            <span class="diff-title">Médio</span>
+            <span class="diff-tag">Multiplicador 2x</span>
+          </button>
+          <button class="diff-btn diff-hard" onclick="app.launchGameWithLevel('hard')">
+            <span style="font-size: 1.5rem">🔥</span>
+            <span class="diff-title">Difícil</span>
+            <span class="diff-tag">Multiplicador 3x</span>
+          </button>
+        </div>
+
+        <button class="btn-secondary" onclick="app.showScreen('screen-menu')">Cancelar</button>
+      </div>
+    </section>
+
+    <!-- Screen 1: Quiz -->
+    <section id="screen-quiz" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.confirmReturnMenu()">⬅ Menu Principal</button>
+        <span class="game-title-bar">📖 Quiz Bíblico — <span id="quiz-diff-label" class="accent">Fácil</span></span>
+        <span id="quiz-score-badge" class="badge">Pontos: 0</span>
+      </div>
+
+      <div class="game-board">
+        <div class="quiz-progress">
+          <span id="quiz-step-text">Pergunta 1 de 5</span>
+          <span id="quiz-time-bonus">Bônus: Nível <span id="quiz-mult-tag">1x</span></span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="quiz-progress-bar"></div>
+        </div>
+
+        <div class="quiz-question" id="quiz-q-text">Carregando pergunta...</div>
+
+        <div class="quiz-options" id="quiz-options-container">
+          <!-- Dynamic Buttons -->
+        </div>
+
+        <div class="quiz-feedback hidden" id="quiz-feedback-box">
+          <div id="quiz-feedback-msg" style="font-weight: 700; margin-bottom: 4px;"></div>
+          <div id="quiz-feedback-desc"></div>
+        </div>
+
+        <div class="text-center" id="quiz-next-container" style="display:none; margin-top: 1rem;">
+          <button class="btn-action" id="quiz-next-btn" onclick="app.quizNext()">Próxima Pergunta ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Caça-Palavras -->
+    <section id="screen-wordsearch" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.confirmReturnMenu()">⬅ Menu Principal</button>
+        <span class="game-title-bar">🔍 Caça-Palavras — <span id="ws-diff-label" class="accent">Fácil</span></span>
+        <span id="ws-found-count" class="badge">0 / 5 encontradas</span>
+      </div>
+
+      <div class="game-board">
+        <p style="margin-top:0; color:var(--text-muted); font-size: 0.9rem;">
+          💡 <strong>Como jogar:</strong> Clique ou toque na <strong>primeira letra</strong> e em seguida na <strong>última letra</strong> da palavra para selecioná-la!
+        </p>
+        <div class="wordsearch-layout">
+          <div class="wordsearch-grid-box">
+            <div id="ws-grid-container" class="ws-grid"></div>
+          </div>
+          <div class="wordsearch-words-box">
+            <h4 style="margin: 0 0 0.75rem 0; color: var(--navy-main); font-size: 1rem;">Palavras a Encontrar:</h4>
+            <ul class="word-list" id="ws-word-list"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Jogo da Memória -->
+    <section id="screen-memory" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.confirmReturnMenu()">⬅ Menu Principal</button>
+        <span class="game-title-bar">🧠 Jogo da Memória — <span id="mem-diff-label" class="accent">Fácil</span></span>
+        <span id="mem-pairs-badge" class="badge">Pares: 0 / 4</span>
+      </div>
+
+      <div class="game-board">
+        <div class="memory-stats">
+          <div class="memory-stat-item">
+            <div class="stat-lbl">Tentativas</div>
+            <div class="stat-val" id="mem-tries">0</div>
+          </div>
+          <div class="memory-stat-item">
+            <div class="stat-lbl">Tempo</div>
+            <div class="stat-val" id="mem-timer">00:00</div>
+          </div>
+          <div class="memory-stat-item">
+            <div class="stat-lbl">Pares Restantes</div>
+            <div class="stat-val" id="mem-remaining">4</div>
+          </div>
+        </div>
+
+        <div id="memory-grid-container" class="memory-grid mem-grid-4"></div>
+      </div>
+    </section>
+
+    <!-- Screen 4: Forca -->
+    <section id="screen-hangman" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.confirmReturnMenu()">⬅ Menu Principal</button>
+        <span class="game-title-bar">⚔️ Forca Bíblica — <span id="hang-diff-label" class="accent">Fácil</span></span>
+        <span id="hang-mistakes-badge" class="badge">Erros: 0 / 6</span>
+      </div>
+
+      <div class="game-board">
+        <div class="hangman-top">
+          <!-- SVG Hangman Graphic -->
+          <div class="hangman-svg-wrap">
+            <svg viewBox="0 0 100 120" style="width:100%; height:100%; stroke: #1b2f77; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;">
+              <!-- Gallow Base -->
+              <line x1="10" y1="115" x2="60" y2="115" />
+              <line x1="30" y1="115" x2="30" y2="10" />
+              <line x1="30" y1="10" x2="75" y2="10" />
+              <line x1="75" y1="10" x2="75" y2="25" />
+              <!-- Hanging Man Parts -->
+              <!-- 1: Head -->
+              <circle id="hang-part-1" cx="75" cy="35" r="10" class="hidden" style="stroke: #d93838; fill: #fff;" />
+              <!-- 2: Body -->
+              <line id="hang-part-2" x1="75" y1="45" x2="75" y2="75" class="hidden" style="stroke: #d93838;" />
+              <!-- 3: Left Arm -->
+              <line id="hang-part-3" x1="75" y1="52" x2="60" y2="65" class="hidden" style="stroke: #d93838;" />
+              <!-- 4: Right Arm -->
+              <line id="hang-part-4" x1="75" y1="52" x2="90" y2="65" class="hidden" style="stroke: #d93838;" />
+              <!-- 5: Left Leg -->
+              <line id="hang-part-5" x1="75" y1="75" x2="62" y2="98" class="hidden" style="stroke: #d93838;" />
+              <!-- 6: Right Leg -->
+              <line id="hang-part-6" x1="75" y1="75" x2="88" y2="98" class="hidden" style="stroke: #d93838;" />
+            </svg>
+          </div>
+
+          <div class="hangman-hint-card">
+            <div class="hint-label">Dica Bíblica:</div>
+            <p class="hint-text" id="hang-hint-text">Dica bíblica aparecerá aqui.</p>
+          </div>
+        </div>
+
+        <div class="hangman-word-display" id="hang-word-display"></div>
+
+        <div class="keyboard-grid" id="hang-keyboard"></div>
+
+        <div class="text-center hidden" id="hang-game-over-box" style="margin-top: 1.5rem;">
+          <h3 id="hang-status-text" style="color:var(--navy-main); margin-bottom: 0.5rem;"></h3>
+          <p id="hang-solution-text" style="color:var(--text-muted); margin-bottom: 1rem;"></p>
+          <button class="btn-action" onclick="app.launchGameWithLevel(app.currentDifficulty)">Jogar Outra Palavra ➔</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 5: Charadas Bíblicas -->
+    <section id="screen-riddles" class="hidden">
+      <div class="game-navbar">
+        <button class="nav-btn" onclick="app.confirmReturnMenu()">⬅ Menu Principal</button>
+        <span class="game-title-bar">💡 Charadas Bíblicas — <span id="rid-diff-label" class="accent">Fácil</span></span>
+        <span id="rid-progress-badge" class="badge">Charada 1 de 3</span>
+      </div>
+
+      <div class="game-board">
+        <div class="riddle-card">
+          <div class="riddle-icon">🤔</div>
+          <div class="riddle-question" id="riddle-q-text">Carregando charada...</div>
+
+          <div id="riddle-btn-reveal-wrap">
+            <button class="btn-action" onclick="app.revealRiddleAnswer()">Revelar Resposta 💡</button>
+          </div>
+
+          <div class="riddle-answer-box hidden" id="riddle-answer-box">
+            <div class="riddle-ans-name" id="riddle-ans-name">Resposta</div>
+            <p class="riddle-ans-expl" id="riddle-ans-expl">Explicação</p>
+          </div>
+        </div>
+
+        <div class="text-center hidden" id="riddle-next-wrap">
+          <button class="btn-action" onclick="app.nextRiddle()">Próxima Charada ➔</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Victory & Completion Modal -->
+  <div class="modal-backdrop hidden" id="victory-modal">
+    <div class="modal-card">
+      <div class="modal-trophy">🏆</div>
+      <h2 class="modal-title" id="modal-title">Você é Mais que Vencedor(a)!</h2>
+      <div class="modal-score" id="modal-points">+150 pts</div>
+      <p class="modal-body-text" id="modal-body-msg">
+        "Em todas estas coisas somos mais que vencedores, por meio daquele que nos amou!" Romanos 8:37
+      </p>
+      <div>
+        <button class="btn-action" onclick="app.closeModalAndMenu()">Voltar ao Menu</button>
+        <button class="btn-secondary" onclick="app.replayCurrentGame()">Jogar Novamente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="brand-footer">
+    <div><strong>Ministério Jovem</strong> — Igreja Evangélica Cristo Vive · Paracambi/RJ</div>
+    <div style="margin-top: 4px;">
+      <span class="footer-gold">“Os mais que vencedores”</span> — Romanos 8:37
+    </div>
+  </footer>
+
+  <script>
+    // Audio Synthesizer (Zero external dependencies)
+    const soundManager = {
+      enabled: true,
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      },
+      beep(freq = 440, type = 'sine', duration = 0.12) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      },
+      playSuccess() {
+        this.beep(523.25, 'triangle', 0.1);
+        setTimeout(() => this.beep(659.25, 'triangle', 0.15), 100);
+        setTimeout(() => this.beep(783.99, 'triangle', 0.25), 220);
+      },
+      playError() {
+        this.beep(220, 'sawtooth', 0.18);
+        setTimeout(() => this.beep(180, 'sawtooth', 0.25), 120);
+      },
+      playWin() {
+        this.beep(440, 'triangle', 0.12);
+        setTimeout(() => this.beep(554.37, 'triangle', 0.12), 120);
+        setTimeout(() => this.beep(659.25, 'triangle', 0.15), 240);
+        setTimeout(() => this.beep(880, 'triangle', 0.4), 380);
+      }
+    };
+
+    // Game Application State & Logic
+    const app = {
+      score: 0,
+      currentGame: null,
+      currentDifficulty: 'easy', // 'easy', 'medium', 'hard'
+      completedGames: new Set(),
+
+      init() {
+        // Load Score from localStorage if available
+        const savedScore = localStorage.getItem('mqv_score');
+        if (savedScore) {
+          this.score = parseInt(savedScore, 10) || 0;
+          this.updateScoreDisplay();
+        }
+
+        // Toggle Sound listener
+        const soundBtn = document.getElementById('sound-toggle-btn');
+        soundBtn.addEventListener('click', () => {
+          soundManager.enabled = !soundManager.enabled;
+          soundBtn.textContent = soundManager.enabled ? '🔊 Som: ON' : '🔇 Som: OFF';
+        });
+
+        // Initialize user interaction for WebAudio
+        document.body.addEventListener('click', () => {
+          soundManager.init();
+        }, { once: true });
+      },
+
+      addScore(pts) {
+        const mult = this.currentDifficulty === 'hard' ? 3 : (this.currentDifficulty === 'medium' ? 2 : 1);
+        const earned = pts * mult;
+        this.score += earned;
+        localStorage.setItem('mqv_score', this.score);
+        this.updateScoreDisplay();
+        return earned;
+      },
+
+      updateScoreDisplay() {
+        const disp = document.getElementById('global-score-display');
+        if (disp) disp.textContent = `${this.score} pts`;
+      },
+
+      showScreen(screenId) {
+        const screens = [
+          'screen-menu',
+          'screen-level',
+          'screen-quiz',
+          'screen-wordsearch',
+          'screen-memory',
+          'screen-hangman',
+          'screen-riddles'
+        ];
+        screens.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
+        const target = document.getElementById(screenId);
+        if (target) target.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+
+      confirmReturnMenu() {
+        this.showScreen('screen-menu');
+      },
+
+      startLevelSelect(gameKey) {
+        this.currentGame = gameKey;
+        const titles = {
+          quiz: 'Quiz Bíblico',
+          wordsearch: 'Caça-Palavras Bíblico',
+          memory: 'Jogo da Memória dos Campeões',
+          hangman: 'Forca Bíblica',
+          riddles: 'Charadas Bíblicas'
+        };
+        document.getElementById('level-game-name').textContent = titles[gameKey] || 'Jogo Bíblico';
+        document.getElementById('level-select-title').textContent = `Nível de ${titles[gameKey]}`;
+        this.showScreen('screen-level');
+      },
+
+      launchGameWithLevel(diff) {
+        this.currentDifficulty = diff;
+        if (this.currentGame === 'quiz') this.quizInit();
+        else if (this.currentGame === 'wordsearch') this.wordsearchInit();
+        else if (this.currentGame === 'memory') this.memoryInit();
+        else if (this.currentGame === 'hangman') this.hangmanInit();
+        else if (this.currentGame === 'riddles') this.riddlesInit();
+      },
+
+      showVictory(pointsWon, customMsg) {
+        soundManager.playWin();
+        this.completedGames.add(this.currentGame);
+        const modal = document.getElementById('victory-modal');
+        document.getElementById('modal-points').textContent = `+${pointsWon} pontos!`;
+        if (customMsg) {
+          document.getElementById('modal-body-msg').textContent = customMsg;
+        } else {
+          document.getElementById('modal-body-msg').textContent = 
+            '“Mas em todas estas coisas somos mais que vencedores, por meio daquele que nos amou!” — Romanos 8:37';
+        }
+
+        // Check if all 5 completed
+        if (this.completedGames.size >= 5) {
+          document.getElementById('modal-title').textContent = '🏆 CAMPEÃO GERAL! VOCÊ É MAIS QUE VENCEDOR(A)!';
+        } else {
+          document.getElementById('modal-title').textContent = 'Parabéns! Vitória Conquistada! 🎉';
+        }
+
+        modal.classList.remove('hidden');
+      },
+
+      closeModalAndMenu() {
+        document.getElementById('victory-modal').classList.add('hidden');
+        this.showScreen('screen-menu');
+      },
+
+      replayCurrentGame() {
+        document.getElementById('victory-modal').classList.add('hidden');
+        this.launchGameWithLevel(this.currentDifficulty);
+      },
+
+      /* ========================================================
+         1. QUIZ BÍBLICO
+         ======================================================== */
+      quizData: {
+        easy: [
+          {
+            q: "Quem escreveu a carta aos Romanos?",
+            options: ["Pedro", "Paulo", "Tiago", "João"],
+            answer: 1,
+            desc: "O apóstolo Paulo escreveu a epístola aos Romanos sob a inspiração do Espírito Santo."
+          },
+          {
+            q: "Quantos livros compõem o Novo Testamento?",
+            options: ["39", "66", "27", "12"],
+            answer: 2,
+            desc: "O Novo Testamento possui 27 livros e o Antigo possui 39 livros, somando 66 no total."
+          },
+          {
+            q: "Em qual cidade nasceu o Senhor Jesus?",
+            options: ["Nazaré", "Jerusalém", "Belém", "Cafarnaum"],
+            answer: 2,
+            desc: "Jesus nasceu em Belém da Judeia, cumprindo a profecia de Miqueias 5:2."
+          },
+          {
+            q: "Qual animal falou com Balaão na Bíblia?",
+            options: ["Uma ovelha", "Uma jumenta", "Um camelo", "Um leão"],
+            answer: 1,
+            desc: "Deus abriu a boca da jumenta de Balaão em Números 22 para repreender o profeta."
+          },
+          {
+            q: "Qual é o primeiro livro das Sagradas Escrituras?",
+            options: ["Êxodo", "Salmos", "Mateus", "Gênesis"],
+            answer: 3,
+            desc: "Gênesis é o livro dos princípios e origens da criação de Deus."
+          }
+        ],
+        medium: [
+          {
+            q: "Em Romanos 8:37, somos mais que vencedores por meio de quem?",
+            options: ["De nossa própria força", "Da lei de Moisés", "Daquele que nos amou", "Dos anjos do céu"],
+            answer: 2,
+            desc: "'Mas em todas estas coisas somos mais que vencedores, por meio daquele que nos amou.' (Rm 8:37)"
+          },
+          {
+            q: "Qual jovem pastor enfrentou e derrotou o gigante Golias?",
+            options: ["Salomão", "Davi", "Sansão", "Gideão"],
+            answer: 1,
+            desc: "Davi derrotou Golias em nome do Senhor dos Exércitos com uma funda e uma pedra (1 Sm 17)."
+          },
+          {
+            q: "No caminho de qual cidade o perseguidor Saulo foi convertido?",
+            options: ["Antioquia", "Damasco", "Roma", "Jericó"],
+            answer: 1,
+            desc: "Saulo viu a glória de Jesus no caminho de Damasco e se tornou o grande apóstolo Paulo (Atos 9)."
+          },
+          {
+            q: "Qual profeta foi engolido por um grande peixe após tentar fugir?",
+            options: ["Elias", "Jeremias", "Jonas", "Daniel"],
+            answer: 2,
+            desc: "Jonas tentou fugir para Társis, mas foi engolido por um grande peixe e orou arrependido."
+          },
+          {
+            q: "Quantos apóstolos principais Jesus escolheu para seu ministério?",
+            options: ["7", "10", "12", "70"],
+            answer: 2,
+            desc: "Jesus escolheu 12 discípulos e os nomeou apóstolos (Lucas 6:13)."
+          }
+        ],
+        hard: [
+          {
+            q: "O que teologicamente significa ser 'mais que vencedor' em Romanos 8:37?",
+            options: [
+              "Nunca passar por problemas ou aflições na Terra",
+              "Ser vitorioso em todas as circunstâncias pelo amor inseparável de Cristo",
+              "Possuir poder sobre todas as pessoas do mundo",
+              "Ter riqueza material superior à de todos"
+            ],
+            answer: 1,
+            desc: "Significa que até mesmo no sofrimento, nada pode nos separar do amor de Deus que está em Cristo Jesus nosso Senhor!"
+          },
+          {
+            q: "Quem sonhou com uma escada que tocava o céu e anjos subindo e descendo?",
+            options: ["Abraão", "Isaque", "Jacó", "José"],
+            answer: 2,
+            desc: "Jacó sonhou em Betel com a escada que chegava aos céus (Gênesis 28:12)."
+          },
+          {
+            q: "Qual era o nome do irmão de Moisés que foi escolhido para falar por ele?",
+            options: ["Josué", "Calebe", "Arão", "Hur"],
+            answer: 2,
+            desc: "Deus designou Arão para ser o porta-voz de Moisés diante de Faraó (Êxodo 4:14-16)."
+          },
+          {
+            q: "Qual profeta foi lançado na cova dos leões por orar fielmente a Deus?",
+            options: ["Daniel", "Ezequiel", "Isaías", "Habacuque"],
+            answer: 0,
+            desc: "Daniel permaneceu fiel a Deus e o Senhor enviou o Seu anjo para fechar a boca dos leões (Dn 6)."
+          },
+          {
+            q: "Qual rei da Babilônia perdeu a razão e comeu capim como os bois no campo?",
+            options: ["Belsazar", "Nabucodonosor", "Ciro", "Dario"],
+            answer: 1,
+            desc: "Nabucodonosor se ensoberbeceu e foi humilhado comendo relva até reconhecer a soberania do Altíssimo (Dn 4)."
+          }
+        ]
+      },
+      quizCurrentIdx: 0,
+      quizCurrentScore: 0,
+      quizAnswered: false,
+
+      quizInit() {
+        this.quizCurrentIdx = 0;
+        this.quizCurrentScore = 0;
+        const diffLabels = { easy: 'Fácil (1x)', medium: 'Médio (2x)', hard: 'Difícil (3x)' };
+        document.getElementById('quiz-diff-label').textContent = diffLabels[this.currentDifficulty];
+        document.getElementById('quiz-mult-tag').textContent = this.currentDifficulty === 'hard' ? '3x' : (this.currentDifficulty === 'medium' ? '2x' : '1x');
+        document.getElementById('quiz-score-badge').textContent = 'Pontos: 0';
+        this.showScreen('screen-quiz');
+        this.quizRender();
+      },
+
+      quizRender() {
+        this.quizAnswered = false;
+        const list = this.quizData[this.currentDifficulty];
+        const item = list[this.quizCurrentIdx];
+
+        document.getElementById('quiz-step-text').textContent = `Pergunta ${this.quizCurrentIdx + 1} de ${list.length}`;
+        const pct = ((this.quizCurrentIdx) / list.length) * 100;
+        document.getElementById('quiz-progress-bar').style.width = `${pct}%`;
+
+        document.getElementById('quiz-q-text').textContent = item.q;
+        document.getElementById('quiz-feedback-box').classList.add('hidden');
+        document.getElementById('quiz-next-container').style.display = 'none';
+
+        const optContainer = document.getElementById('quiz-options-container');
+        optContainer.innerHTML = '';
+
+        const letters = ['A', 'B', 'C', 'D'];
+        item.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'quiz-opt-btn';
+          btn.innerHTML = `<span class="quiz-opt-letter">${letters[idx]}</span> <span>${opt}</span>`;
+          btn.onclick = () => app.quizSelectAnswer(idx);
+          optContainer.appendChild(btn);
+        });
+      },
+
+      quizSelectAnswer(choiceIdx) {
+        if (this.quizAnswered) return;
+        this.quizAnswered = true;
+
+        const list = this.quizData[this.currentDifficulty];
+        const item = list[this.quizCurrentIdx];
+        const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+        buttons.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === item.answer) {
+            btn.classList.add('correct');
+          } else if (idx === choiceIdx) {
+            btn.classList.add('wrong');
+          }
+        });
+
+        const feedbackBox = document.getElementById('quiz-feedback-box');
+        const feedbackMsg = document.getElementById('quiz-feedback-msg');
+        const feedbackDesc = document.getElementById('quiz-feedback-desc');
+        feedbackBox.classList.remove('hidden', 'is-correct', 'is-wrong');
+
+        if (choiceIdx === item.answer) {
+          soundManager.playSuccess();
+          feedbackBox.classList.add('is-correct');
+          feedbackMsg.textContent = '🎉 Resposta Correta!';
+          const earned = this.addScore(25);
+          this.quizCurrentScore += earned;
+        } else {
+          soundManager.playError();
+          feedbackBox.classList.add('is-wrong');
+          feedbackMsg.textContent = '❌ Resposta Incorreta!';
+        }
+
+        feedbackDesc.textContent = item.desc;
+        document.getElementById('quiz-score-badge').textContent = `Pontos: ${this.quizCurrentScore}`;
+        document.getElementById('quiz-next-container').style.display = 'block';
+      },
+
+      quizNext() {
+        const list = this.quizData[this.currentDifficulty];
+        this.quizCurrentIdx++;
+        if (this.quizCurrentIdx < list.length) {
+          this.quizRender();
+        } else {
+          // Finished Quiz
+          document.getElementById('quiz-progress-bar').style.width = '100%';
+          this.showVictory(this.quizCurrentScore, `Você completou o Quiz Bíblico no nível ${this.currentDifficulty.toUpperCase()}! Continue firme nos caminhos do Senhor!`);
+        }
+      },
+
+      /* ========================================================
+         2. CAÇA-PALAVRAS
+         ======================================================== */
+      wsData: {
+        easy: {
+          size: 8,
+          words: [
+            { raw: 'AMOR', clean: 'AMOR' },
+            { raw: 'FÉ', clean: 'FE' },
+            { raw: 'DEUS', clean: 'DEUS' },
+            { raw: 'JESUS', clean: 'JESUS' },
+            { raw: 'PAZ', clean: 'PAZ' }
+          ]
+        },
+        medium: {
+          size: 10,
+          words: [
+            { raw: 'CRISTO', clean: 'CRISTO' },
+            { raw: 'VITÓRIA', clean: 'VITORIA' },
+            { raw: 'ORAÇÃO', clean: 'ORACAO' },
+            { raw: 'FÉ', clean: 'FE' },
+            { raw: 'GRAÇA', clean: 'GRACA' },
+            { raw: 'IGREJA', clean: 'IGREJA' }
+          ]
+        },
+        hard: {
+          size: 12,
+          words: [
+            { raw: 'VENCEDORES', clean: 'VENCEDORES' },
+            { raw: 'ROMANOS', clean: 'ROMANOS' },
+            { raw: 'PARACAMBI', clean: 'PARACAMBI' },
+            { raw: 'JOVENS', clean: 'JOVENS' },
+            { raw: 'TRIBULAÇÃO', clean: 'TRIBULACAO' },
+            { raw: 'ESPERANÇA', clean: 'ESPERANCA' },
+            { raw: 'PERSEVERANÇA', clean: 'PERSEVERANCA' }
+          ]
+        }
+      },
+      wsGrid: [],
+      wsFoundWords: new Set(),
+      wsSelectedStart: null,
+
+      wordsearchInit() {
+        const conf = this.wsData[this.currentDifficulty];
+        const diffLabels = { easy: 'Fácil (8x8)', medium: 'Médio (10x10)', hard: 'Difícil (12x12)' };
+        document.getElementById('ws-diff-label').textContent = diffLabels[this.currentDifficulty];
+        this.wsFoundWords.clear();
+        this.wsSelectedStart = null;
+        this.buildWordsearchGrid(conf);
+        this.renderWordsearch();
+        this.showScreen('screen-wordsearch');
+      },
+
+      buildWordsearchGrid(conf) {
+        const size = conf.size;
+        const grid = Array.from({ length: size }, () => Array(size).fill(''));
+        const words = [...conf.words];
+
+        // Placements directions
+        // easy: horizontal (0,1), vertical (1,0)
+        // medium: + diagonal down-right (1,1), diagonal down-left (1,-1)
+        // hard: + reversed
+        let directions = [[0, 1], [1, 0]];
+        if (this.currentDifficulty === 'medium') {
+          directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        } else if (this.currentDifficulty === 'hard') {
+          directions = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0]];
+        }
+
+        words.forEach(wObj => {
+          const word = wObj.clean;
+          let placed = false;
+          let tries = 0;
+          while (!placed && tries < 200) {
+            tries++;
+            const dir = directions[Math.floor(Math.random() * directions.length)];
+            const dr = dir[0];
+            const dc = dir[1];
+            const rStart = Math.floor(Math.random() * size);
+            const cStart = Math.floor(Math.random() * size);
+
+            const rEnd = rStart + dr * (word.length - 1);
+            const cEnd = cStart + dc * (word.length - 1);
+
+            if (rEnd >= 0 && rEnd < size && cEnd >= 0 && cEnd < size) {
+              // check collisions
+              let canPlace = true;
+              for (let i = 0; i < word.length; i++) {
+                const cell = grid[rStart + dr * i][cStart + dc * i];
+                if (cell !== '' && cell !== word[i]) {
+                  canPlace = false;
+                  break;
+                }
+              }
+              if (canPlace) {
+                for (let i = 0; i < word.length; i++) {
+                  grid[rStart + dr * i][cStart + dc * i] = word[i];
+                }
+                placed = true;
+              }
+            }
+          }
+        });
+
+        // Fill empty spaces with random biblical/general letters
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let r = 0; r < size; r++) {
+          for (let c = 0; c < size; c++) {
+            if (grid[r][c] === '') {
+              grid[r][c] = alphabet[Math.floor(Math.random() * alphabet.length)];
+            }
+          }
+        }
+        this.wsGrid = grid;
+      },
+
+      renderWordsearch() {
+        const conf = this.wsData[this.currentDifficulty];
+        const container = document.getElementById('ws-grid-container');
+        container.innerHTML = '';
+        container.style.gridTemplateColumns = `repeat(${conf.size}, auto)`;
+
+        for (let r = 0; r < conf.size; r++) {
+          for (let c = 0; c < conf.size; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'ws-cell';
+            cell.id = `ws-c-${r}-${c}`;
+            cell.textContent = this.wsGrid[r][c];
+            cell.dataset.r = r;
+            cell.dataset.c = c;
+            cell.addEventListener('click', () => this.handleWsCellClick(r, c));
+            container.appendChild(cell);
+          }
+        }
+
+        // Render Words list
+        const wordListEl = document.getElementById('ws-word-list');
+        wordListEl.innerHTML = '';
+        conf.words.forEach(w => {
+          const li = document.createElement('li');
+          li.className = 'word-item';
+          li.id = `ws-item-${w.clean}`;
+          li.innerHTML = `<span>${w.raw}</span> <span id="ws-check-${w.clean}">⏳</span>`;
+          wordListEl.appendChild(li);
+        });
+
+        this.updateWsCount();
+      },
+
+      updateWsCount() {
+        const conf = this.wsData[this.currentDifficulty];
+        const found = this.wsFoundWords.size;
+        const total = conf.words.length;
+        document.getElementById('ws-found-count').textContent = `${found} / ${total} encontradas`;
+      },
+
+      handleWsCellClick(r, c) {
+        if (!this.wsSelectedStart) {
+          // Select start
+          soundManager.beep(400, 'sine', 0.05);
+          this.wsSelectedStart = { r, c };
+          document.getElementById(`ws-c-${r}-${c}`).classList.add('selected');
+        } else {
+          // Finish selection
+          const start = this.wsSelectedStart;
+          const end = { r, c };
+          this.checkWsSelection(start, end);
+          const startEl = document.getElementById(`ws-c-${start.r}-${start.c}`);
+          if (startEl) startEl.classList.remove('selected');
+          this.wsSelectedStart = null;
+        }
+      },
+
+      checkWsSelection(start, end) {
+        const dr = end.r - start.r;
+        const dc = end.c - start.c;
+        const stepR = dr === 0 ? 0 : (dr > 0 ? 1 : -1);
+        const stepC = dc === 0 ? 0 : (dc > 0 ? 1 : -1);
+
+        const lenR = Math.abs(dr);
+        const lenC = Math.abs(dc);
+
+        // Must be purely horizontal, vertical or 45-deg diagonal
+        if (lenR !== 0 && lenC !== 0 && lenR !== lenC) {
+          soundManager.playError();
+          return;
+        }
+
+        const length = Math.max(lenR, lenC) + 1;
+        let constructedWord = "";
+        const coords = [];
+
+        for (let i = 0; i < length; i++) {
+          const currR = start.r + stepR * i;
+          const currC = start.c + stepC * i;
+          constructedWord += this.wsGrid[currR][currC];
+          coords.push({ r: currR, c: currC });
+        }
+
+        const conf = this.wsData[this.currentDifficulty];
+        const matched = conf.words.find(w => w.clean === constructedWord);
+
+        if (matched && !this.wsFoundWords.has(matched.clean)) {
+          soundManager.playSuccess();
+          this.wsFoundWords.add(matched.clean);
+          this.addScore(30);
+
+          // Mark cells
+          coords.forEach(pos => {
+            const el = document.getElementById(`ws-c-${pos.r}-${pos.c}`);
+            if (el) el.classList.add('found');
+          });
+
+          // Mark list
+          const itemEl = document.getElementById(`ws-item-${matched.clean}`);
+          if (itemEl) itemEl.classList.add('found');
+          const checkEl = document.getElementById(`ws-check-${matched.clean}`);
+          if (checkEl) checkEl.textContent = '✓';
+
+          this.updateWsCount();
+
+          if (this.wsFoundWords.size === conf.words.length) {
+            setTimeout(() => {
+              this.showVictory(150, `Sensacional! Você encontrou todas as palavras da grade de Caça-Palavras no nível ${this.currentDifficulty.toUpperCase()}!`);
+            }, 600);
+          }
+        } else {
+          soundManager.playError();
+        }
+      },
+
+      /* ========================================================
+         3. JOGO DA MEMÓRIA
+         ======================================================== */
+      memData: {
+        easy: [
+          { name: "Davi", detail: "👑 Rei & Vencedor de Golias" },
+          { name: "Daniel", detail: "🦁 Fidelidade na Cova dos Leões" },
+          { name: "Josué", detail: "⚔️ Coragem & Queda de Jericó" },
+          { name: "Paulo", detail: "📜 Apóstolo Mais Que Vencedor" }
+        ],
+        medium: [
+          { name: "Rm 8:37", detail: "“Mais que vencedores por meio daquele que nos amou”" },
+          { name: "Fp 4:13", detail: "“Tudo posso naquele que me fortalece”" },
+          { name: "Js 1:9", detail: "“Sê forte e corajoso; não temas, nem te espantes”" },
+          { name: "1Jo 5:4", detail: "“Esta é a vitória que vence o mundo: a nossa fé”" },
+          { name: "Sl 18:39", detail: "“Pois me cingiste de força para a peleja”" },
+          { name: "Is 41:10", detail: "“Não temas, porque eu sou contigo; te sustento”" }
+        ],
+        hard: [
+          { name: "Davi", detail: "Rei Ungido de Israel" },
+          { name: "Daniel", detail: "Profeta e Homem Oração" },
+          { name: "Paulo", detail: "Autor de Romanos 8:37" },
+          { name: "Elias", detail: "Fogo no Monte Carmelo" },
+          { name: "Rm 8:31", detail: "“Se Deus é por nós, quem será contra nós?”" },
+          { name: "Fp 4:13", detail: "“Tudo posso em Cristo”" },
+          { name: "Sl 23:1", detail: "“O Senhor é meu pastor, nada me faltará”" },
+          { name: "1Co 15:57", detail: "“Graças a Deus que nos dá a vitória por Cristo”" }
+        ]
+      },
+      memCards: [],
+      memFlipped: [],
+      memMatchedCount: 0,
+      memTriesCount: 0,
+      memTimerInterval: null,
+      memSeconds: 0,
+
+      memoryInit() {
+        const pairs = this.memData[this.currentDifficulty];
+        const diffLabels = { easy: 'Fácil (4 Pares)', medium: 'Médio (6 Pares)', hard: 'Difícil (8 Pares)' };
+        document.getElementById('mem-diff-label').textContent = diffLabels[this.currentDifficulty];
+        document.getElementById('mem-pairs-badge').textContent = `Pares: 0 / ${pairs.length}`;
+        document.getElementById('mem-remaining').textContent = pairs.length;
+        document.getElementById('mem-tries').textContent = '0';
+        document.getElementById('mem-timer').textContent = '00:00';
+
+        this.memMatchedCount = 0;
+        this.memTriesCount = 0;
+        this.memSeconds = 0;
+        this.memFlipped = [];
+
+        clearInterval(this.memTimerInterval);
+        this.memTimerInterval = setInterval(() => {
+          this.memSeconds++;
+          const mins = String(Math.floor(this.memSeconds / 60)).padStart(2, '0');
+          const secs = String(this.memSeconds % 60).padStart(2, '0');
+          document.getElementById('mem-timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+
+        // Duplicate and build deck
+        let deck = [];
+        pairs.forEach((p, idx) => {
+          deck.push({ id: idx, type: 'title', text: p.name });
+          deck.push({ id: idx, type: 'desc', text: p.detail });
+        });
+        deck.sort(() => Math.random() - 0.5);
+        this.memCards = deck;
+
+        const gridEl = document.getElementById('memory-grid-container');
+        gridEl.innerHTML = '';
+        if (pairs.length === 6) {
+          gridEl.className = 'memory-grid';
+          gridEl.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        } else if (pairs.length === 8) {
+          gridEl.className = 'memory-grid';
+          gridEl.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        } else {
+          gridEl.className = 'memory-grid mem-grid-4';
+          gridEl.style.gridTemplateColumns = '';
+        }
+
+        deck.forEach((card, index) => {
+          const cardEl = document.createElement('div');
+          cardEl.className = 'memory-card';
+          cardEl.id = `mem-card-${index}`;
+          cardEl.innerHTML = `
+            <div class="card-face card-back">✝</div>
+            <div class="card-face card-front">
+              <strong style="color:var(--navy-main); font-size: ${card.type === 'title' ? '1.1rem' : '0.85rem'}; line-height:1.2;">
+                ${card.text}
+              </strong>
+            </div>
+          `;
+          cardEl.onclick = () => this.flipMemoryCard(index);
+          gridEl.appendChild(cardEl);
+        });
+
+        this.showScreen('screen-memory');
+      },
+
+      flipMemoryCard(idx) {
+        if (this.memFlipped.length >= 2) return;
+        const cardEl = document.getElementById(`mem-card-${idx}`);
+        if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+
+        soundManager.beep(460, 'sine', 0.08);
+        cardEl.classList.add('flipped');
+        this.memFlipped.push(idx);
+
+        if (this.memFlipped.length === 2) {
+          this.memTriesCount++;
+          document.getElementById('mem-tries').textContent = this.memTriesCount;
+
+          const idx1 = this.memFlipped[0];
+          const idx2 = this.memFlipped[1];
+          const card1 = this.memCards[idx1];
+          const card2 = this.memCards[idx2];
+
+          if (card1.id === card2.id) {
+            // Match found!
+            soundManager.playSuccess();
+            setTimeout(() => {
+              document.getElementById(`mem-card-${idx1}`).classList.add('matched');
+              document.getElementById(`mem-card-${idx2}`).classList.add('matched');
+              this.memMatchedCount++;
+              this.addScore(35);
+
+              const totalPairs = this.memData[this.currentDifficulty].length;
+              document.getElementById('mem-pairs-badge').textContent = `Pares: ${this.memMatchedCount} / ${totalPairs}`;
+              document.getElementById('mem-remaining').textContent = totalPairs - this.memMatchedCount;
+
+              this.memFlipped = [];
+
+              if (this.memMatchedCount === totalPairs) {
+                clearInterval(this.memTimerInterval);
+                setTimeout(() => {
+                  this.showVictory(200, `Excelente memória! Você completou todos os pares em ${this.memTriesCount} tentativas e ${this.memSeconds} segundos!`);
+                }, 500);
+              }
+            }, 400);
+          } else {
+            // No match
+            setTimeout(() => {
+              soundManager.beep(200, 'sine', 0.1);
+              document.getElementById(`mem-card-${idx1}`).classList.remove('flipped');
+              document.getElementById(`mem-card-${idx2}`).classList.remove('flipped');
+              this.memFlipped = [];
+            }, 1000);
+          }
+        }
+      },
+
+      /* ========================================================
+         4. FORCA BÍBLICA
+         ======================================================== */
+      hangmanWords: {
+        easy: [
+          { word: "AMOR", hint: "O maior mandamento e o vínculo da perfeição (Rm 8:37)." },
+          { word: "GIGANTE", hint: "Inimigo que Davi derrubou em nome do Senhor." },
+          { word: "ARCA", hint: "Embarcação construída por Noé pela fé." },
+          { word: "NOE", hint: "Homem justo que encontrou graça aos olhos de Deus." },
+          { word: "CRUZ", hint: "Onde Jesus conquistou nossa redenção e vitória completa." }
+        ],
+        medium: [
+          { word: "VITORIA", hint: "O que Cristo nos concede diante de qualquer tribulação." },
+          { word: "GOLIAS", hint: "Guerreiro filisteu desafiador abatido com uma funda." },
+          { word: "SALVACAO", hint: "Dádiva gratuita concedida pela graça mediante a fé." },
+          { word: "PROMESSA", hint: "O que Deus cumpre e não volta atrás." },
+          { word: "PARACAMBI", hint: "A cidade abençoada onde nossa igreja Cristo Vive se reúne." }
+        ],
+        hard: [
+          { word: "TRIBULACAO", hint: "Aflição passageira da qual somos mais que vencedores em Cristo." },
+          { word: "PERSEVERANCA", hint: "Virtude bíblica para correr a carreira da fé sem desanimar." },
+          { word: "JUSTIFICACAO", hint: "Ato soberano de Deus pelo qual fomos declarados justos por Jesus." },
+          { word: "REDENCAO", hint: "O resgate que Cristo pagou por nós através do Seu sangue." },
+          { word: "ONIPOTENTE", hint: "Atributo exclusivo de Deus, que tem todo o poder no céu e na terra." }
+        ]
+      },
+      hangSecret: "",
+      hangHint: "",
+      hangGuessed: new Set(),
+      hangMistakes: 0,
+      hangMaxMistakes: 6,
+
+      hangmanInit() {
+        const list = this.hangmanWords[this.currentDifficulty];
+        const pick = list[Math.floor(Math.random() * list.length)];
+        this.hangSecret = pick.word;
+        this.hangHint = pick.hint;
+        this.hangGuessed.clear();
+        this.hangMistakes = 0;
+
+        const diffLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
+        document.getElementById('hang-diff-label').textContent = diffLabels[this.currentDifficulty];
+        document.getElementById('hang-mistakes-badge').textContent = 'Erros: 0 / 6';
+        document.getElementById('hang-hint-text').textContent = this.hangHint;
+        document.getElementById('hang-game-over-box').classList.add('hidden');
+
+        // Hide SVG parts
+        for (let i = 1; i <= 6; i++) {
+          const part = document.getElementById(`hang-part-${i}`);
+          if (part) part.classList.add('hidden');
+        }
+
+        this.renderHangWordDisplay();
+        this.renderHangKeyboard();
+        this.showScreen('screen-hangman');
+      },
+
+      renderHangWordDisplay() {
+        const disp = document.getElementById('hang-word-display');
+        disp.innerHTML = '';
+        for (const char of this.hangSecret) {
+          const slot = document.createElement('div');
+          slot.className = 'letter-slot';
+          slot.textContent = this.hangGuessed.has(char) ? char : '';
+          disp.appendChild(slot);
+        }
+      },
+
+      renderHangKeyboard() {
+        const kb = document.getElementById('hang-keyboard');
+        kb.innerHTML = '';
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (const l of letters) {
+          const btn = document.createElement('button');
+          btn.className = 'key-btn';
+          btn.textContent = l;
+          btn.id = `key-${l}`;
+          btn.onclick = () => this.hangGuessLetter(l);
+          kb.appendChild(btn);
+        }
+      },
+
+      hangGuessLetter(letter) {
+        if (this.hangGuessed.has(letter) || this.hangMistakes >= this.hangMaxMistakes) return;
+
+        this.hangGuessed.add(letter);
+        const btn = document.getElementById(`key-${letter}`);
+        btn.disabled = true;
+
+        if (this.hangSecret.includes(letter)) {
+          soundManager.playSuccess();
+          btn.classList.add('hit');
+          this.renderHangWordDisplay();
+
+          // Check if won
+          const won = [...this.hangSecret].every(c => this.hangGuessed.has(c));
+          if (won) {
+            const earned = this.addScore(80);
+            setTimeout(() => {
+              this.showVictory(earned, `Você descobriu a palavra "${this.hangSecret}" na Forca Bíblica! Glória a Deus!`);
+            }, 400);
+          }
+        } else {
+          soundManager.playError();
+          btn.classList.add('miss');
+          this.hangMistakes++;
+          document.getElementById('hang-mistakes-badge').textContent = `Erros: ${this.hangMistakes} / 6`;
+
+          const part = document.getElementById(`hang-part-${this.hangMistakes}`);
+          if (part) part.classList.remove('hidden');
+
+          if (this.hangMistakes >= this.hangMaxMistakes) {
+            // Lost Hangman
+            document.getElementById('hang-status-text').textContent = 'Fim de Jogo!';
+            document.getElementById('hang-solution-text').textContent = `A palavra secreta era: ${this.hangSecret}`;
+            document.getElementById('hang-game-over-box').classList.remove('hidden');
+          }
+        }
+      },
+
+      /* ========================================================
+         5. CHARADAS BÍBLICAS
+         ======================================================== */
+      riddlesData: {
+        easy: [
+          {
+            q: "“Fui vencedor de gigantes com uma funda e cinco pedras, mas tive uma falha com Bate-Seba antes de me arrepender profundamente. Quem sou eu?”",
+            ans: "Davi",
+            expl: "Rei de Israel, autor de muitos Salmos e homem segundo o coração de Deus após seu quebrantamento."
+          },
+          {
+            q: "“Enfrentei a cova dos leões famintos porque confiava incondicionalmente no Deus vivo e orava três vezes ao dia. Quem sou eu?”",
+            ans: "Daniel",
+            expl: "Profeta na Babilônia que não se contaminou com as iguarias do rei e foi protegido pelo anjo de Deus."
+          },
+          {
+            q: "“Construí uma arca gigante de madeira de gofer em obediência ao Senhor, salvando minha família do dilúvio. Quem sou eu?”",
+            ans: "Noé",
+            expl: "Exemplo de justiça e fé citado em Hebreus 11."
+          }
+        ],
+        medium: [
+          {
+            q: "“Sou um apóstolo a quem Jesus chamou de ‘Cefas’ (Pedra), andei por breves momentos sobre as águas e liderei a pregação no Pentecostes. Quem sou eu?”",
+            ans: "Pedro",
+            expl: "Simão Pedro, apóstolo de Cristo que foi restaurado pelo Mestre e se tornou pilar da Igreja Primitiva."
+          },
+          {
+            q: "“Vi o céu se abrir e o Espírito Santo descer em forma de pomba durante o batismo de Jesus no rio Jordão. Quem sou eu?”",
+            ans: "João Batista",
+            expl: "A voz que clamava no deserto: 'Eis o Cordeiro de Deus que tira o pecado do mundo!'"
+          },
+          {
+            q: "“Fui vendido pelos meus próprios irmãos por causa de inveja, mas pela graça divina me tornei o governador de todo o Egito. Quem sou eu?”",
+            ans: "José",
+            expl: "José do Egito declarou a seus irmãos: 'Vós bem intentastes mal contra mim; porém Deus o intentou para bem' (Gn 50:20)."
+          }
+        ],
+        hard: [
+          {
+            q: "“O ‘mais que vencedor’ que, mesmo preso em cadeias, escreveu a inspirada carta aos Romanos e ao capítulo 8:37. Quem sou eu?”",
+            ans: "Paulo",
+            expl: "O apóstolo dos gentios que afirmou: 'Combati o bom combate, terminei a corrida, guardei a fé' (2 Tm 4:7)."
+          },
+          {
+            q: "“Governador da Judéia que lavou as mãos em público diante da multidão e soltou Barrabás em vez de Cristo. Quem sou eu?”",
+            ans: "Pôncio Pilatos",
+            expl: "Prefeito romano da província da Judeia que cedeu à pressão dos líderes religiosos."
+          },
+          {
+            q: "“Profeta que desafiou 450 profetas de Baal no Monte Carmelo e orou para que fogo descesse do céu para provar que o Senhor é Deus. Quem sou eu?”",
+            ans: "Elias",
+            expl: "Profeta de fogo que não provou a morte e foi levado aos céus por um redemoinho num carro de fogo."
+          }
+        ]
+      },
+      ridCurrentIdx: 0,
+
+      riddlesInit() {
+        this.ridCurrentIdx = 0;
+        const diffLabels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
+        document.getElementById('rid-diff-label').textContent = diffLabels[this.currentDifficulty];
+        this.showScreen('screen-riddles');
+        this.riddleRender();
+      },
+
+      riddleRender() {
+        const list = this.riddlesData[this.currentDifficulty];
+        const item = list[this.ridCurrentIdx];
+
+        document.getElementById('rid-progress-badge').textContent = `Charada ${this.ridCurrentIdx + 1} de ${list.length}`;
+        document.getElementById('riddle-q-text').textContent = item.q;
+
+        document.getElementById('riddle-btn-reveal-wrap').classList.remove('hidden');
+        document.getElementById('riddle-answer-box').classList.add('hidden');
+        document.getElementById('riddle-next-wrap').classList.add('hidden');
+      },
+
+      revealRiddleAnswer() {
+        soundManager.playSuccess();
+        const list = this.riddlesData[this.currentDifficulty];
+        const item = list[this.ridCurrentIdx];
+
+        document.getElementById('riddle-btn-reveal-wrap').classList.add('hidden');
+        const box = document.getElementById('riddle-answer-box');
+        box.classList.remove('hidden');
+        document.getElementById('riddle-ans-name').textContent = item.ans;
+        document.getElementById('riddle-ans-expl').textContent = item.expl;
+
+        this.addScore(40);
+        document.getElementById('riddle-next-wrap').classList.remove('hidden');
+      },
+
+      nextRiddle() {
+        const list = this.riddlesData[this.currentDifficulty];
+        this.ridCurrentIdx++;
+        if (this.ridCurrentIdx < list.length) {
+          this.riddleRender();
+        } else {
+          this.showVictory(120, `Você decifrou todas as Charadas Bíblicas no nível ${this.currentDifficulty.toUpperCase()}! Conhecimento aprovado!`);
+        }
+      }
+    };
+
+    // Initialize application when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      app.init();
+    });
+  </script>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisFmt keeps axis tick labels short (compact notation) so long values
+  // (e.g. full BRL amounts) never clip against the plot edge.
+  function axisFmt(v) {
+    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
+  }
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  function coerceFormat(spec) {
+    if (typeof spec === "function") return spec;
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 12, plotH = H - padT - padB;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (v / max) * plotH);
+      var x = padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
+  function line(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 16, plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    var pts = cfg.values.map(function (v, i) {
+      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+      var y = padT + plotH - (v / max) * plotH;
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
+      c.appendChild(t);
+      svg.appendChild(c);
+      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
+    var a0 = -Math.PI / 2;
+    cfg.values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
+    center.textContent = fmt.num(total);
+    svg.appendChild(center);
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+})();
+
+</script>
+</body>
+</html>
